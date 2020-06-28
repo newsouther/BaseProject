@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.souther.dao.TbRoleDao">
+
+	<resultMap id="BaseResultMap" type="com.souther.entity.TbRole">
+		<id column="id" property="id" />
+		<id column="name" property="name" />
+		<id column="create_time" property="createTime" />
+		<id column="update_time" property="updateTime" />
+		<id column="data_deleted" property="dataDeleted" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, create_time, update_time, data_deleted
+	</sql>
+	
+</mapper>
