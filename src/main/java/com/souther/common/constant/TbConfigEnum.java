@@ -23,6 +23,9 @@ public enum TbConfigEnum {
 
   /** 是否开发版本,1为开发版本 **/
   DEVELOPMENT(1102),
+
+  /** shiro cache time,unit:s **/
+  SHIRO_CACHE_TIME(1103),
   ;
 
   private Integer type;

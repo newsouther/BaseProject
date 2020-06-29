@@ -10,8 +10,8 @@ import com.souther.service.CommonService;
 import com.souther.service.OpenService;
 import com.souther.service.TbUserService;
 import com.souther.service.WxLoginService;
+import com.souther.utils.JedisUtil;
 import com.souther.utils.JwtUtil;
-import com.souther.utils.RedisUtil;
 import com.souther.vo.bo.CommonResult;
 import com.souther.vo.bo.LoginUserInfoBO;
 import com.souther.vo.bo.WxLoginAppletsBO;
@@ -41,12 +41,6 @@ public class OpenServiceImpl implements OpenService {
 
   @Autowired
   private TbUserService tbUserService;
-
-  @Autowired
-  private RedisUtil redisUtil;
-
-  @Autowired
-  private JwtUtil jwtUtil;
 
   @Override
   public CommonResult<LoginUserInfoBO> login(AccountLoginPO accountLoginPO) {
@@ -95,11 +89,11 @@ public class OpenServiceImpl implements OpenService {
         dbUser.setUnionid(wxLoginAppletsBO.getUnionid());
       }
       // 删除redis缓存
-      redisUtil.delete(String.format(RedisKeyEnum.JWT_SESSION.getKey(), dbUser.getId()));
+      JedisUtil.delKey(String.format(RedisKeyEnum.JWT_SESSION.getKey(), dbUser.getId()));
       dbUser.setUpdateTime(now);
       tbUserService.updateById(dbUser);
     }
-    String tokenByWxAccount = jwtUtil.createTokenByWxAccount(dbUser);
+    String tokenByWxAccount = JwtUtil.createTokenByWxAccount(dbUser);
     LoginUserInfoBO result = new LoginUserInfoBO();
     BeanUtils.copyProperties(dbUser, result);
     result.setToken(tokenByWxAccount);

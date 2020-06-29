@@ -33,6 +33,3 @@ mybatis-plus:
 
 logging:
   config: classpath:logback-spring.xml
-
-jwt:
-  secret: VGiXGUJDQl0OjjKmvTH3ycbkyVSg5Sb3RyPy40DpN98aDGX3

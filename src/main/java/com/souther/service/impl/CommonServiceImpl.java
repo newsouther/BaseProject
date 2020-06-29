@@ -8,7 +8,7 @@ import com.souther.common.constant.TbConfigEnum;
 import com.souther.entity.TbConfig;
 import com.souther.service.CommonService;
 import com.souther.service.TbConfigService;
-import com.souther.utils.RedisUtil;
+import com.souther.utils.JedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +26,13 @@ import org.springframework.util.Assert;
 public class CommonServiceImpl implements CommonService {
 
   @Autowired
-  private RedisUtil redisUtil;
-
-  @Autowired
   private TbConfigService tbConfigService;
 
   @Override
   public String getConfigDB(TbConfigEnum dbConfigEnum) {
 
     String cacheKey = String.format(RedisKeyEnum.DB_CONFIG.getKey(), dbConfigEnum.getType());
-    String cacheData = redisUtil.get(cacheKey);
+    String cacheData = JedisUtil.getJson(cacheKey);
     if (StringUtils.isNoneBlank(cacheData)) {
       TbConfig tbConfig = JSONObject.parseObject(cacheData, TbConfig.class);
       return tbConfig.getRecord();
@@ -44,7 +41,7 @@ public class CommonServiceImpl implements CommonService {
     queryWrapper.eq("type", dbConfigEnum.getType());
     TbConfig dbConfig = tbConfigService.getOne(queryWrapper);
     Assert.notNull(dbConfig, "【DB配置】数据库缺少类型为" + dbConfigEnum.getType() + "的配置信息");
-    redisUtil.set(cacheKey, JSONObject.toJSONString(dbConfig));
+    JedisUtil.setJson(cacheKey, JSONObject.toJSONString(dbConfig));
     return dbConfig.getRecord();
   }
 }

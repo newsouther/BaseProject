@@ -1,18 +1,28 @@
 package com.souther.conf.shiro;
 
-import com.souther.common.exception.MyException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.souther.entity.TbPermission;
+import com.souther.entity.TbRole;
+import com.souther.entity.TbRolePermission;
+import com.souther.entity.TbUserRole;
+import com.souther.service.TbPermissionService;
+import com.souther.service.TbRolePermissionService;
+import com.souther.service.TbRoleService;
+import com.souther.service.TbUserRoleService;
 import com.souther.utils.JwtUtil;
-import lombok.SneakyThrows;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 /**
@@ -20,11 +30,20 @@ import org.springframework.util.StringUtils;
  * @date 2020/4/9
  * @description: 继承AuthorizingRealm作为Realm使用，
  */
-@Component
+@Service
 public class TokenRealm extends AuthorizingRealm {
 
   @Autowired
-  JwtUtil jwtUtil;
+  private TbUserRoleService tbUserRoleService;
+
+  @Autowired
+  private TbRoleService tbRoleService;
+
+  @Autowired
+  private TbRolePermissionService tbRolePermissionService;
+
+  @Autowired
+  private TbPermissionService tbPermissionService;
 
   /**
    * 该方法是为了判断这个主体能否被本Realm处理，判断的方法是查看token是否为同一个类型
@@ -45,27 +64,26 @@ public class TokenRealm extends AuthorizingRealm {
    * @return
    * @throws AuthenticationException token异常，可以细化设置
    */
-  @SneakyThrows
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) {
     String submittedToken = authenticationToken.getCredentials().toString();
     //解析出信息
-    String wxOpenId = jwtUtil.getWxOpenIdByToken(submittedToken);
-    String sessionKey = jwtUtil.getSessionKeyByToken(submittedToken);
-    String userId = jwtUtil.getUserIdByToken(submittedToken);
+    String wxOpenId = JwtUtil.getWxOpenIdByToken(submittedToken);
+    String sessionKey = JwtUtil.getSessionKeyByToken(submittedToken);
+    Integer userId = JwtUtil.getUserIdByToken(submittedToken);
     //对信息进行辨别
     if (StringUtils.isEmpty(wxOpenId)) {
-      throw new MyException(400,"please check your token");
+      throw new AuthenticationException("please check your token");
     }
     if (StringUtils.isEmpty(sessionKey)) {
-      throw new MyException(400,"please check your token");
+      throw new AuthenticationException("please check your token");
     }
-    if (StringUtils.isEmpty(userId)) {
-      throw new MyException(400,"please check your token");
+    if (userId == null) {
+      throw new AuthenticationException("please check your token");
     }
-    if (!jwtUtil.verifyToken(submittedToken)) {
-      throw new MyException(400,"please check your token");
-    }
+    boolean verifyToken = JwtUtil.verifyToken(submittedToken);
+    if (!verifyToken)
+      throw new AuthenticationException("please check your token");
     return new SimpleAuthenticationInfo(submittedToken, submittedToken, getName());
   }
 
@@ -77,7 +95,41 @@ public class TokenRealm extends AuthorizingRealm {
    */
   @Override
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-    return null;
+    SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+    Integer userId = JwtUtil.getUserIdByToken(principalCollection.toString());
+    //用户角色
+    List<TbUserRole> dbUserRoles = tbUserRoleService
+        .list(
+            new QueryWrapper<TbUserRole>().select("role_id").eq(userId != null, "user_id", userId));
+    if (dbUserRoles.isEmpty()) {
+      return simpleAuthorizationInfo;
+    }
+    //角色id
+    List<Integer> roleIdList = dbUserRoles.stream().map(u -> u.getRoleId())
+        .collect(Collectors.toList());
+    //角色
+    List<TbRole> tbRoles = tbRoleService.listByIds(roleIdList);
+    //角色权限
+    List<TbRolePermission> dbRolePermission = tbRolePermissionService.list(
+        new QueryWrapper<TbRolePermission>().select("permission_id")
+            .in(!roleIdList.isEmpty(), "role_id", roleIdList));
+    //权限id
+    List<Integer> permissionIds = dbRolePermission.stream().map(u -> u.getPermissionId())
+        .collect(Collectors.toList());
+    //权限
+    List<TbPermission> tbPermissions = tbPermissionService.listByIds(permissionIds);
+    // 添加角色
+    for (TbRole role :
+        tbRoles) {
+      simpleAuthorizationInfo.addRole(role.getName());
+    }
+    // 添加权限
+    for (TbPermission permission :
+        tbPermissions) {
+      simpleAuthorizationInfo.addStringPermission(permission.getPerCode());
+    }
+
+    return simpleAuthorizationInfo;
   }
 
   /**

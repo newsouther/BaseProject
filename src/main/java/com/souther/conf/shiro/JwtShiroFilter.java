@@ -34,11 +34,6 @@ public class JwtShiroFilter extends BasicHttpAuthenticationFilter {
         return httpRequest.getHeader("token");
     }
 
-    @Override
-    protected boolean isLoginAttempt(String authzHeader) {
-        return authzHeader != null;
-    }
-
     /**
      * 此方法调用登陆，验证逻辑
      */
@@ -50,6 +45,35 @@ public class JwtShiroFilter extends BasicHttpAuthenticationFilter {
         }
         return true;
     }
+
+    /**
+     * 检测Header里面是否包含Authorization字段，有就进行Token登录认证授权
+     */
+    @Override
+    protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
+        // 拿到当前Header中Authorization的AccessToken(Shiro中getAuthzHeader方法已经实现)
+        String token = this.getAuthzHeader(request);
+        return token != null;
+    }
+
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        this.sendChallenge(request, response);
+        return false;
+    }
+//
+//    /**
+//     * 进行AccessToken登录认证授权
+//     */
+//    @Override
+//    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
+//        // 拿到当前Header中Authorization的AccessToken(Shiro中getAuthzHeader方法已经实现)
+//        JwtShiroToken token = new JwtShiroToken(this.getAuthzHeader(request));
+//        // 提交给UserRealm进行认证，如果错误他会抛出异常并被捕获
+//        this.getSubject(request, response).login(token);
+//        // 如果没有抛出异常则代表登入成功，返回true
+//        return true;
+//    }
 
     /**
      * 提供跨域支持

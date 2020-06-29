@@ -6,34 +6,25 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.souther.common.constant.RedisKeyEnum;
 import com.souther.entity.TbUser;
 import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Jirath
  * @date 2020/4/9
  * @description: jwt工具，createToken会产生redis缓存，检测会核实缓存
  */
-@Component
+@Slf4j
 public class JwtUtil {
 
   /**
    * JWT 自定义密钥 在配置文件进行配置
    */
-  @Value("${jwt.secret}")
-  private String secretKey;
+  private static String secretKey = "VGiXGUJDQl0OjjKmvTH3ycbkyVSg5Sb3RyPy40DpN98aDGX3";
 
   /**
    * JWT 过期时间值 这里写死为和小程序时间一致 7200 秒，也就是两个小时
    */
-  private static final long EXPIRE_TIME = 7200;
-
-  @Autowired
-  private RedisUtil redisUtil;
+  private static final int EXPIRE_TIME = 7200;
 
   /**
    * 根据微信用户登陆信息创建 token 注 : 这里的token会被缓存到redis中,用作为二次验证 redis里面缓存的时间应该和jwt token的过期时间设置相同
@@ -41,7 +32,7 @@ public class JwtUtil {
    * @param useInfo 用户信息
    * @return 返回 jwt token
    */
-  public String createTokenByWxAccount(TbUser useInfo) {
+  public static String createTokenByWxAccount(TbUser useInfo) {
     //JWT 随机ID,做为验证的key
 //    String jwtId = UUID.randomUUID().toString();
     //1 . 加密算法进行签名得到token
@@ -58,7 +49,7 @@ public class JwtUtil {
         .sign(algorithm);
     //2 . Redis缓存JWT, 注 : 请和JWT过期时间一致
     String cacheKey = String.format(RedisKeyEnum.JWT_SESSION.getKey(), useInfo.getId());
-    redisUtil.setEx(cacheKey, token, EXPIRE_TIME, TimeUnit.SECONDS);
+    JedisUtil.setJson(cacheKey, token, EXPIRE_TIME);
     return token;
   }
 
@@ -69,11 +60,11 @@ public class JwtUtil {
    * @param token 密钥
    * @return 返回是否校验通过
    */
-  public boolean verifyToken(String token) {
+  public static boolean verifyToken(String token) {
     try {
       //1 . 根据token解密，解密出jwt-id , 先从redis中查找出redisToken，匹配是否相同
       String cacheKey = String.format(RedisKeyEnum.JWT_SESSION.getKey(), getUserIdByToken(token));
-      String redisToken = redisUtil.get(cacheKey);
+      String redisToken = JedisUtil.getJson(cacheKey);
       if (!redisToken.equals(token)) {
         return false;
       }
@@ -90,9 +81,10 @@ public class JwtUtil {
       //3 . 验证token
       verifier.verify(redisToken);
       //4 . Redis缓存JWT续期
-      redisUtil.setEx(cacheKey, redisToken, EXPIRE_TIME, TimeUnit.SECONDS);
+      JedisUtil.setJson(cacheKey, redisToken, EXPIRE_TIME);
       return true;
     } catch (Exception e) { //捕捉到任何异常都视为校验失败
+      log.error("【JwtUtil-verifyToken-90】",e);
       return false;
     }
   }
@@ -100,14 +92,14 @@ public class JwtUtil {
   /**
    * 根据Token获取wxOpenId(注意坑点 : 就算token不正确，也有可能解密出wxOpenId,同下)
    */
-  public String getWxOpenIdByToken(String token) {
+  public static String getWxOpenIdByToken(String token) {
     return JWT.decode(token).getClaim("wxOpenId").asString();
   }
 
   /**
    * 根据Token获取sessionKey
    */
-  public String getSessionKeyByToken(String token) {
+  public static String getSessionKeyByToken(String token) {
     return JWT.decode(token).getClaim("sessionKey").asString();
   }
 
@@ -121,8 +113,8 @@ public class JwtUtil {
   /**
    * 根据Token 获取user-id
    */
-  public String getUserIdByToken(String token) {
-    return JWT.decode(token).getClaim("user-id").asString();
+  public static Integer getUserIdByToken(String token) {
+    return JWT.decode(token).getClaim("user-id").asInt();
   }
 
 }

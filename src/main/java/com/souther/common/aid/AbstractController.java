@@ -12,7 +12,6 @@ import com.souther.vo.bo.CommonResult;
 import com.souther.vo.po.PageParam;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author: souther
  * @time 2020年5月19日
  */
-public class AbstractController<S extends IService<T>, T> {
+public class AbstractController<S extends IService<T>, T> extends BaseController {
 
   @Autowired
   protected S baseService;

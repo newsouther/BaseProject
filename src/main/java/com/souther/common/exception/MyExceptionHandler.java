@@ -3,8 +3,7 @@ package com.souther.common.exception;
 import com.souther.vo.bo.CommonResult;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.ConcurrentAccessException;
 import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
@@ -82,6 +81,13 @@ public class MyExceptionHandler {
   public CommonResult<String> httpRequestMethodNotSupportedException(
       HttpRequestMethodNotSupportedException e) {
     String info = "请求方式错误:" + e.getMethod();
+    log.error(info);
+    return CommonResult.error(info);
+  }
+
+  @ExceptionHandler(ShiroException.class)
+  public CommonResult<String> shiroException(ShiroException e) {
+    String info = "权限异常:" + e.getMessage();
     log.error(info);
     return CommonResult.error(info);
   }

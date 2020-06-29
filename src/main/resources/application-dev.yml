@@ -5,15 +5,15 @@ server:
 
 #redis
 spring:
-  redis:
-    host: 204.13.155.52
-    port: 6379
-    database: 0
-    password: mapple
-    timeout: 0
-    pool:
-      max-idle: 100
-      min-idle: 3
+#  redis:
+#    host: 204.13.155.52
+#    port: 6379
+#    database: 0
+#    password: mapple
+#    timeout: 0
+#    pool:
+#      max-idle: 100
+#      min-idle: 3
 
   #druid
   datasource:
