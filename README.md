@@ -1,6 +1,6 @@
 ## 常规springboot-base项目二期
 1. 项目介绍
-   - 本项目基于之前一期：[跳转](https://github.com/newsouther/generalproject.git)
+   - 本项目基于之前一期
 2. 相关
    1. [x] mybatis plus 数据库框架
    2. [x] mybatis-dsc-generator 一键生成代码工具（定制：模糊查询、排序）
