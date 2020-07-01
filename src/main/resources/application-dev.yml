@@ -19,7 +19,7 @@ spring:
 
   redis:
     port: 6379
-    lettuce:
+    jedis:
       pool:
         max-active: 500
         max-wait: 500
