@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.souther.common.constant.RedisKeyEnum;
 import com.souther.entity.TbUser;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,7 +50,7 @@ public class JwtUtil {
         .sign(algorithm);
     //2 . Redis缓存JWT, 注 : 请和JWT过期时间一致
     String cacheKey = String.format(RedisKeyEnum.JWT_SESSION.getKey(), useInfo.getId());
-    JedisUtil.setJson(cacheKey, token, EXPIRE_TIME);
+    RedisUtil.setExpire(cacheKey, token, EXPIRE_TIME, TimeUnit.SECONDS);
     return token;
   }
 
@@ -64,7 +65,7 @@ public class JwtUtil {
     try {
       //1 . 根据token解密，解密出jwt-id , 先从redis中查找出redisToken，匹配是否相同
       String cacheKey = String.format(RedisKeyEnum.JWT_SESSION.getKey(), getUserIdByToken(token));
-      String redisToken = JedisUtil.getJson(cacheKey);
+      String redisToken = RedisUtil.getStr(cacheKey);
       if (!redisToken.equals(token)) {
         return false;
       }
@@ -81,10 +82,10 @@ public class JwtUtil {
       //3 . 验证token
       verifier.verify(redisToken);
       //4 . Redis缓存JWT续期
-      JedisUtil.setJson(cacheKey, redisToken, EXPIRE_TIME);
+      RedisUtil.setExpire(cacheKey, redisToken, EXPIRE_TIME, TimeUnit.SECONDS);
       return true;
     } catch (Exception e) { //捕捉到任何异常都视为校验失败
-      log.error("【JwtUtil-verifyToken-90】",e);
+      log.error("【JwtUtil-verifyToken-90】", e);
       return false;
     }
   }

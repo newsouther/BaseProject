@@ -1,6 +1,6 @@
 package com.souther.conf.shiro;
 
-import com.souther.conf.shiro.cache.CustomCacheManager;
+import com.souther.conf.shiro.cache.ShiroCacheManager;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.Filter;
@@ -49,8 +49,6 @@ public class ShiroConf {
     shiroFilterFactoryBean.setSecurityManager(securityManager);
     //注册拦截方案
     Map<String, Filter> filterMap = new HashMap<>();
-    //【卧槽泥马，搞死我了】
-//    filterMap.put("token", new JwtShiroFilter());
     filterMap.put("jwt", new JwtShiroFilter());
     shiroFilterFactoryBean.setFilters(filterMap);
     //定义拦截规则
@@ -80,7 +78,8 @@ public class ShiroConf {
    */
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Bean("securityManager")
-  public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm) {
+  public DefaultWebSecurityManager securityManager(TokenRealm tokenRealm,
+      ShiroCacheManager shiroCacheManager) {
     log.info("注入Shiro的Web过滤器-->securityManager");
     DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager(tokenRealm);
     //设置realm
@@ -92,7 +91,7 @@ public class ShiroConf {
     evaluator.setSessionStorageEnabled(Boolean.FALSE);
     subjectDAO.setSessionStorageEvaluator(evaluator);
     // 设置自定义Cache缓存
-    defaultWebSecurityManager.setCacheManager(new CustomCacheManager());
+    defaultWebSecurityManager.setCacheManager(shiroCacheManager);
 
     return defaultWebSecurityManager;
   }

@@ -2,8 +2,6 @@ package com.souther.utils;
 
 import com.souther.common.exception.MyException;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -13,7 +11,7 @@ import redis.clients.jedis.JedisPool;
  * @author dolyw.com
  * @date 2018/9/4 15:45
  */
-@Component
+//@Component
 public class JedisUtil {
 
   /**
@@ -22,7 +20,7 @@ public class JedisUtil {
    */
   private static JedisPool jedisPool;
 
-  @Autowired
+//  @Autowired
   public void setJedisPool(JedisPool jedisPool) {
     JedisUtil.jedisPool = jedisPool;
   }

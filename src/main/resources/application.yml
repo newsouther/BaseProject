@@ -33,3 +33,7 @@ mybatis-plus:
 
 logging:
   config: classpath:logback-spring.xml
+
+shiro:
+  cache:
+    expire: 7200
