@@ -20,6 +20,12 @@
   </properties>
 
   <dependencies>
+    <!--    qiniu-->
+    <dependency>
+      <groupId>com.qiniu</groupId>
+      <artifactId>qiniu-java-sdk</artifactId>
+      <version>7.2.29</version>
+    </dependency>
     <!--    weixin-popular-->
     <dependency>
       <groupId>com.github.liyiorg</groupId>

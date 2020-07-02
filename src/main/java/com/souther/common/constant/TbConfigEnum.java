@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public enum TbConfigEnum {
 
-  /*** ==================== 配置相关========================= **/
+  /*** ==================== 配置相关【基础项目专区，11xx】 ========================= **/
 
   /** 微信公众号登陆配置,{@link WxSmallDB} **/
   WX_PUBLIC_LOGIN(1101),
@@ -26,6 +26,11 @@ public enum TbConfigEnum {
 
   /** shiro cache time,unit:s **/
   SHIRO_CACHE_TIME(1103),
+
+  /**
+   * 七牛配置,关联：QiNiuConfigDB
+   */
+  QI_NIU_CONFIG(1004),
   ;
 
   private Integer type;
