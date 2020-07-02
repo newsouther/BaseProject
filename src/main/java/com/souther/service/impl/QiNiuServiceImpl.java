@@ -11,7 +11,7 @@ import com.souther.service.QiNiuService;
 import com.souther.vo.bo.CommonResult;
 import com.souther.vo.db.QiNiuConfigDB;
 import java.util.Map;
-import lombok.Setter;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
  * @Date: 2020/7/2 14:28
  * @Description:
  */
-@Setter
 @Slf4j
 @Service
 public class QiNiuServiceImpl implements QiNiuService {
 
+  @Resource
   private CommonService commonService;
 
   @Override

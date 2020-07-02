@@ -30,7 +30,12 @@ public enum TbConfigEnum {
   /**
    * 七牛配置,关联：QiNiuConfigDB
    */
-  QI_NIU_CONFIG(1004),
+  QI_NIU_CONFIG(1104),
+
+  /**
+   * 超级验证码
+   */
+  SUPER_CODE(1105),
   ;
 
   private Integer type;

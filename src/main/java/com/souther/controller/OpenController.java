@@ -6,7 +6,7 @@ import com.souther.service.OpenService;
 import com.souther.vo.bo.CommonResult;
 import com.souther.vo.bo.LoginUserInfoBO;
 import com.souther.vo.po.AccountLoginPO;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/open")
 public class OpenController extends BaseController {
 
-  @Autowired
+  @Resource
   private OpenService openService;
 
   /**

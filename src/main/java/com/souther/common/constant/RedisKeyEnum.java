@@ -1,7 +1,6 @@
 package com.souther.common.constant;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
@@ -27,6 +26,10 @@ public enum RedisKeyEnum {
    **/
   SHIRO_CACHE("shiro:CACHE_%s"),
 
+  /*** ==================== other ========================= **/
+
+  /** 验证码 p1-类型 p2-手机号码 **/
+  SMS_CODE("sms:code_%s_%s"),
   ;
 
   private String key;
