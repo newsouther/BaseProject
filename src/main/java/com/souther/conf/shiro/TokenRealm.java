@@ -23,7 +23,6 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Jirath
@@ -68,27 +67,20 @@ public class TokenRealm extends AuthorizingRealm {
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) {
     String submittedToken = authenticationToken.getCredentials().toString();
     //解析出信息
-    String wxOpenId = JwtUtil.getWxOpenIdByToken(submittedToken);
-    String sessionKey = JwtUtil.getSessionKeyByToken(submittedToken);
     Integer userId = JwtUtil.getUserIdByToken(submittedToken);
     //对信息进行辨别
-    if (StringUtils.isEmpty(wxOpenId)) {
-      throw new AuthenticationException("please check your token");
-    }
-    if (StringUtils.isEmpty(sessionKey)) {
-      throw new AuthenticationException("please check your token");
-    }
     if (userId == null) {
       throw new AuthenticationException("please check your token");
     }
     boolean verifyToken = JwtUtil.verifyToken(submittedToken);
-    if (!verifyToken)
+    if (!verifyToken) {
       throw new AuthenticationException("please check your token");
+    }
     return new SimpleAuthenticationInfo(submittedToken, submittedToken, getName());
   }
 
   /**
-   * 这个方法是用来添加身份信息的，本项目计划为管理员提供网站后台，所以这里不需要身份信息，返回一个简单的即可
+   * 这个方法是用来添加身份信息的
    *
    * @param principalCollection
    * @return
@@ -101,7 +93,7 @@ public class TokenRealm extends AuthorizingRealm {
     List<TbUserRole> dbUserRoles = tbUserRoleService
         .list(
             new QueryWrapper<TbUserRole>().select("role_id").eq(userId != null, "user_id", userId));
-    if (dbUserRoles.isEmpty()) {
+    if (dbUserRoles == null || dbUserRoles.isEmpty()) {
       return simpleAuthorizationInfo;
     }
     //角色id
@@ -112,7 +104,7 @@ public class TokenRealm extends AuthorizingRealm {
     //角色权限
     List<TbRolePermission> dbRolePermission = tbRolePermissionService.list(
         new QueryWrapper<TbRolePermission>().select("permission_id")
-            .in(!roleIdList.isEmpty(), "role_id", roleIdList));
+            .in(roleIdList != null && !roleIdList.isEmpty(), "role_id", roleIdList));
     //权限id
     List<Integer> permissionIds = dbRolePermission.stream().map(u -> u.getPermissionId())
         .collect(Collectors.toList());

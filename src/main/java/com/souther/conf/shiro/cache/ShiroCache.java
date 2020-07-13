@@ -1,37 +1,38 @@
 package com.souther.conf.shiro.cache;
 
+import com.alibaba.fastjson.JSONObject;
 import com.souther.common.constant.RedisKeyEnum;
 import com.souther.utils.JwtUtil;
 import com.souther.utils.RedisUtil;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  * @Auther: souther
  * @Date: 2020/6/30 14:19
  * @Description: 重写Shiro的Cache保存读取
  */
-@Component
-public class ShiroCache<K,V> implements Cache<K,V> {
+public class ShiroCache<K, V> implements Cache<K, V> {
 
 //  @Autowired  这个是分布式配置啦
 //  private AuthProperties authProperties;
 
-  @Value("${shiro.cache.expire}")
-  private Long shiroCacheExpireTime;
+  //  @Value("${shiro.cache.expire}")
+  private Long shiroCacheExpireTime = 7200L;
 
   /**
    * 缓存的key名称获取为shiro:cache:account
+   *
    * @param key
    * @return java.lang.String
    */
   private String getKey(Object key) {
-    return String.format(RedisKeyEnum.SHIRO_CACHE.getKey(),JwtUtil.getUserIdByToken(key.toString()));
+    return String
+        .format(RedisKeyEnum.SHIRO_CACHE.getKey(), JwtUtil.getUserIdByToken(key.toString()));
   }
 
   /**
@@ -39,10 +40,12 @@ public class ShiroCache<K,V> implements Cache<K,V> {
    */
   @Override
   public Object get(Object key) throws CacheException {
-    if(Boolean.FALSE.equals(RedisUtil.existAny(this.getKey(key)))){
+    if (Boolean.FALSE.equals(RedisUtil.hasKey(this.getKey(key)))) {
       return null;
     }
-    return RedisUtil.get(this.getKey(key));
+    String jsonString = RedisUtil.get(this.getKey(key));
+    Object parseObject = JSONObject.parseObject(jsonString, SimpleAuthorizationInfo.class);
+    return parseObject;
   }
 
   /**
@@ -51,7 +54,8 @@ public class ShiroCache<K,V> implements Cache<K,V> {
   @Override
   public Object put(Object key, Object value) throws CacheException {
     // 设置Redis的Shiro缓存
-    RedisUtil.setExpire(this.getKey(key), value, shiroCacheExpireTime, TimeUnit.SECONDS);
+    String jsonString = JSONObject.toJSONString(value);
+    RedisUtil.setEx(this.getKey(key), jsonString, shiroCacheExpireTime, TimeUnit.SECONDS);
     return value;
   }
 
@@ -60,10 +64,10 @@ public class ShiroCache<K,V> implements Cache<K,V> {
    */
   @Override
   public Object remove(Object key) throws CacheException {
-    if(Boolean.FALSE.equals(RedisUtil.existAny(this.getKey(key)))){
+    if (Boolean.FALSE.equals(RedisUtil.hasKey(this.getKey(key)))) {
       return null;
     }
-    RedisUtil.del(this.getKey(key));
+    RedisUtil.delete(this.getKey(key));
     return null;
   }
 

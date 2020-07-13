@@ -56,6 +56,15 @@ public class ShiroConf {
     //登陆相关api不需要被过滤器拦截
 //    filterRuleMap.put("/api/wx/user/login/**", "anon");
 //    filterRuleMap.put("/api/response/**", "anon");
+//    swagger
+    filterRuleMap.put("/swagger-resources/**", "anon");
+    filterRuleMap.put("/api-docs", "anon");
+    filterRuleMap.put("/doc.html", "anon");
+    filterRuleMap.put("/api-docs-ext", "anon");
+    filterRuleMap.put("/webjars/**", "anon");
+    filterRuleMap.put("/v2/**", "anon");
+    filterRuleMap.put("/swagger-ui.html", "anon");
+
     //登录
     filterRuleMap.put("/api/open/**", "anon");
     // 所有请求通过JWT Filter
