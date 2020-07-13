@@ -89,7 +89,7 @@ public class OpenServiceImpl implements OpenService {
         dbUser.setUnionid(wxLoginAppletsBO.getUnionid());
       }
       // 删除redis缓存
-      RedisUtil.del(String.format(RedisKeyEnum.JWT_SESSION.getKey(), dbUser.getId()));
+      RedisUtil.delete(String.format(RedisKeyEnum.JWT_SESSION.getKey(), dbUser.getId()));
       dbUser.setUpdateTime(now);
       tbUserService.updateById(dbUser);
     }

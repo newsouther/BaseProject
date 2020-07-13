@@ -43,7 +43,7 @@ public class NoRepeatSubmitAop {
       MethodSignature signature = (MethodSignature) pjp.getSignature();
       NoRepeatSubmit noRepeatSubmit = signature.getMethod().getAnnotation(NoRepeatSubmit.class);
       // 默认1秒内统一用户同一个地址同一个参数，视为重复提交
-      RedisUtil.setExpire(key, "0", noRepeatSubmit.time(), TimeUnit.SECONDS);
+      RedisUtil.setEx(key, "0", noRepeatSubmit.time(), TimeUnit.SECONDS);
       return o;
     } else {
       throw new MyException(600, "重复提交");

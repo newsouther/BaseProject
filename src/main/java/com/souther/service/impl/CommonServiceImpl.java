@@ -42,7 +42,7 @@ public class CommonServiceImpl implements CommonService {
   public String getConfigDB(TbConfigEnum dbConfigEnum) {
 
     String cacheKey = String.format(RedisKeyEnum.DB_CONFIG.getKey(), dbConfigEnum.getType());
-    String cacheData = RedisUtil.getStr(cacheKey);
+    String cacheData = RedisUtil.get(cacheKey);
     if (StringUtils.isNoneBlank(cacheData)) {
       TbConfig tbConfig = JSONObject.parseObject(cacheData, TbConfig.class);
       return tbConfig.getRecord();
@@ -79,7 +79,7 @@ public class CommonServiceImpl implements CommonService {
     // 缓存验证码
     String cacheKey = String
         .format(RedisKeyEnum.SMS_CODE.getKey(), sendCodePO.getType(), sendCodePO.getPhone());
-    RedisUtil.setExpire(cacheKey, code, 5, TimeUnit.MINUTES);
+    RedisUtil.setEx(cacheKey, code, 5, TimeUnit.MINUTES);
     return new CommonResult<>();
   }
 
@@ -95,14 +95,14 @@ public class CommonServiceImpl implements CommonService {
 
     // 如果不是超级验证码
     String cacheKey = String.format(RedisKeyEnum.SMS_CODE.getKey(), smsTypeEnum.getType(), phone);
-    String cacheCode = RedisUtil.getStr(cacheKey);
+    String cacheCode = RedisUtil.get(cacheKey);
     if (StringUtils.isBlank(cacheCode)) {
       return new CommonResult<>(600, "验证码已过期");
     }
     if (!cacheCode.equals(code)) {
       return new CommonResult<>(600, "验证码错误");
     }
-    RedisUtil.del(cacheKey);
+    RedisUtil.delete(cacheKey);
     // 校验成功
     return new CommonResult<>();
   }
