@@ -37,3 +37,4 @@ logging:
 shiro:
   cache:
     expire: 7200
+

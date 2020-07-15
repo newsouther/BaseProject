@@ -171,6 +171,14 @@ public class MyExceptionHandler {
     return CommonResult.error(e.getCode(), info);
   }
 
+  // 前端异常，不用记录
+  @ExceptionHandler(FrontException.class)
+  public CommonResult<String> frontException(
+      FrontException e) {
+    String info = e.getMessage();
+    return CommonResult.error(e.getCode(), info);
+  }
+
   // 默认异常处理
   @ExceptionHandler(Exception.class)
   public CommonResult<String> defaultException(Exception e) {
