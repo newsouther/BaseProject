@@ -88,78 +88,78 @@ public class MyExceptionHandler {
   @ExceptionHandler(ShiroException.class)
   public CommonResult<String> shiroException(ShiroException e) {
     String info = "权限异常:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(701,info);
   }
 
   @ExceptionHandler(IncorrectCredentialsException.class)
   public CommonResult<String> incorrectCredentialsException(IncorrectCredentialsException e) {
     String info = "不正确的凭证:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(ExpiredCredentialsException.class)
   public CommonResult<String> expiredCredentialsException(ExpiredCredentialsException e) {
     String info = "凭证过期:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(ConcurrentAccessException.class)
   public CommonResult<String> ConcurrentAccessException(ConcurrentAccessException e) {
     String info = "并发访问异常（多个用户同时登录时抛出）:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(UnknownAccountException.class)
   public CommonResult<String> UnknownAccountException(UnknownAccountException e) {
     String info = "未知的账号:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(ExcessiveAttemptsException.class)
   public CommonResult<String> ExcessiveAttemptsException(ExcessiveAttemptsException e) {
     String info = "认证次数超过限制:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(DisabledAccountException.class)
   public CommonResult<String> DisabledAccountException(DisabledAccountException e) {
     String info = "禁用的账号:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(UnauthorizedException.class)
   public CommonResult<String> UnauthorizedException(UnauthorizedException e) {
     String info = "请求的操作或对请求的资源的访问是不允许的:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(701,info);
   }
 
   @ExceptionHandler(UnauthenticatedException.class)
   public CommonResult<String> UnauthenticatedException(UnauthenticatedException e) {
     String info = "当尚未完成成功认证时，尝试执行授权操作时引发异常:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(LockedAccountException.class)
   public CommonResult<String> LockedAccountException(LockedAccountException e) {
     String info = "账号被锁定:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   @ExceptionHandler(UnsupportedTokenException.class)
   public CommonResult<String> UnsupportedTokenException(UnsupportedTokenException e) {
     String info = "使用了不支持的Token:" + e.getMessage();
-    log.error(info);
-    return CommonResult.error(info);
+    log.info(info);
+    return CommonResult.error(700,info);
   }
 
   // 自定义异常
